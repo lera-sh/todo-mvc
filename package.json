@@ -1,0 +1,12 @@
+{
+  "name": "todo-mvc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/lera-sh/todo-mvc.git",
+  "author": "Valeria Shirko <valerka.shirko@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "live-server": "^1.2.2"
+  }
+}
