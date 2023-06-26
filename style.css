@@ -32,7 +32,7 @@
   }
   
   .add-button {
-    background-color: #9999ff;
+    background-color: #9966ff;
     border: none;
     color: #fff;
     cursor: pointer;
@@ -65,7 +65,7 @@
   }
   
   .delete {
-    background-color: #ccccff;
+    background-color: #cc0052;
     border: none;
     color: #fff;
     cursor: pointer;

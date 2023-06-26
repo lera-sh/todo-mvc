@@ -4,15 +4,15 @@ class View {
         this.input = document.querySelector('.new-todo');
         this.todoList = document.querySelector('.todo-list');
       
-        this._temporaryTodoText = '';
-        this._initLocalListeners();
+        this.temporaryTodoText = '';
+        this.initLocalListeners();
     }
   
-    get _todoText() {
+    get todoText() {
       return this.input.value
     }
   
-    _resetInput() {
+    resetInput() {
       this.input.value = ''
     }
   
@@ -23,16 +23,10 @@ class View {
       return element
     }
   
-    getElement(selector) {
-      const element = document.querySelector(selector)
-  
-      return element
-    }
-  
     displayTodos(todos) {
-      while (this.todoList.firstChild) {
-        this.todoList.removeChild(this.todoList.firstChild)
-      }
+      [...this.todoList.children].forEach(child => {
+        this.todoList.removeChild(child)
+      })
   
       if (todos.length === 0) {
         const p = this.createElement('p')
@@ -42,37 +36,37 @@ class View {
       } else {
         todos.forEach(todo => {
           const li = this.createElement('li')
-          li.id = todo.id
-  
           const checkbox = this.createElement('input')
-          checkbox.type = 'checkbox'
-          checkbox.checked = todo.complete
-  
           const span = this.createElement('span')
+          const deleteButton = this.createElement('button', 'delete')
+
+          li.id = todo.id
+          checkbox.checked = todo.complete
           span.contentEditable = true
+
+          checkbox.type = 'checkbox'
           span.classList.add('editable')
+          deleteButton.textContent = 'Delete'
   
           if (todo.complete) {
             const strike = this.createElement('s')
             strike.textContent = todo.text
+
             span.append(strike)
           } else {
             span.textContent = todo.text
           }
-  
-          const deleteButton = this.createElement('button', 'delete')
-          deleteButton.textContent = 'Delete'
+
           li.append(checkbox, span, deleteButton)
-  
           this.todoList.append(li)
         })
       }
     }
   
-    _initLocalListeners() {
+    initLocalListeners() {
       this.todoList.addEventListener('input', event => {
         if (event.target.className === 'editable') {
-          this._temporaryTodoText = event.target.innerText
+          this.temporaryTodoText = event.target.innerText
         }
       })
     }
@@ -81,9 +75,9 @@ class View {
       this.form.addEventListener('submit', event => {
         event.preventDefault()
   
-        if (this._todoText) {
-          handler(this._todoText)
-          this._resetInput()
+        if (this.todoText) {
+          handler(this.todoText)
+          this.resetInput()
         }
       })
     }
@@ -99,14 +93,21 @@ class View {
     }
   
     bindEditTodo(handler) {
-      this.todoList.addEventListener('focusout', event => {
-        if (this._temporaryTodoText) {
-          const id = parseInt(event.target.parentElement.id)
-  
-          handler(id, this._temporaryTodoText)
-          this._temporaryTodoText = ''
+      this.todoList.addEventListener('keydown', event => {
+        if (!event.target.isContentEditable) return 
+        if (event.code === 'Enter') {
+          event.target.blur()
         }
-      })
+      }) 
+
+      this.todoList.addEventListener('focusout', event => {
+        if (!event.target.isContentEditable) return 
+        if (event.target.innerText.trim()) {
+          const id = parseInt(event.target.parentElement.id);
+    
+          handler(id, event.target.innerText);
+        }
+      });
     }
   
     bindToggleTodo(handler) {
