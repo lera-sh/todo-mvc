@@ -1,36 +1,74 @@
 class Controller {
   constructor(model, view) {
-    this.model = model
-    this.view = view
+    this.model = model;
+    this.view = view;
 
-    this.model.bindTodoListChanged(this.onTodoListChanged)
-    this.view.bindAddTodo(this.handleAddTodo)
-    this.view.bindEditTodo(this.handleEditTodo)
-    this.view.bindDeleteTodo(this.handleDeleteTodo)
-    this.view.bindToggleTodo(this.handleToggleTodo)
+    this.view.bindAddTodo(this.addTodo.bind(this));
+    this.view.bindEditTodo(this.editTodo.bind(this));
+    this.view.bindDeleteTodo(this.deleteTodo.bind(this));
+    this.view.bindToggleTodo(this.toggleTodo.bind(this));
 
-    this.onTodoListChanged(this.model.todos)
+    this.bindTodoListChanged(this.onTodoListChanged.bind(this));
+    this.onTodoListChanged(this.model.todos);
   }
 
-  onTodoListChanged = todos => {
-    this.view.displayTodos(todos)
+  bindTodoListChanged(callback) {
+    this.onTodoListChanged = callback;
   }
 
-  handleAddTodo = todoText => {
-    this.model.addTodo(todoText)
+  commit(todos) {
+    this.onTodoListChanged(todos);
+    localStorage.setItem('todos', JSON.stringify(todos));
   }
 
-  handleEditTodo = (id, todoText) => {
-    this.model.editTodo(id, todoText)
+  onTodoListChanged(todos) {
+    this.view.displayTodos(todos);
   }
 
-  handleDeleteTodo = id => {
-    this.model.deleteTodo(id)
+  addTodo(todoText) {
+    const todos = this.model.getTodos();
+
+    const todo = {
+      id: todos.length > 0 ? todos[todos.length - 1].id + 1 : 1,
+      text: todoText,
+      complete: false,
+    };
+
+    todos.push(todo);
+
+    this.commit(todos);
   }
 
-  handleToggleTodo = id => {
-    this.model.toggleTodo(id)
+  editTodo(id, updatedText) {
+    let todos = this.model.getTodos();
+
+    todos = todos.map((todo) =>
+      todo.id === id ? { id: todo.id, text: updatedText, complete: todo.complete } : todo
+    );
+
+    this.model.todos = todos;
+    this.commit(todos);
+  }
+
+  deleteTodo(id) {
+    let todos = this.model.getTodos();
+  
+    todos = todos.filter((todo) => todo.id !== id);
+
+    this.model.todos = todos;
+    this.commit(todos);
+  }
+
+  toggleTodo(id) {
+    let todos = this.model.getTodos();
+
+    todos = todos.map((todo) =>
+      todo.id === id ? { id: todo.id, text: todo.text, complete: !todo.complete } : todo
+    );
+
+    this.model.todos = todos;
+    this.commit(todos);
   }
 }
 
-export default Controller
+export default Controller;
